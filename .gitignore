@@ -1,0 +1,11 @@
+# Các thư mục rác khi build
+bin/
+obj/
+
+# File Database SQLite (Không nên đưa lên Git vì nó là dữ liệu cá nhân)
+*.db
+*.db-shm
+*.db-wal
+
+# Các file cấu hình cá nhân của VS Code
+.vscode/
