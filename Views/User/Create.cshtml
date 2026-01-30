@@ -1,0 +1,39 @@
+@model dynamic
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Tạo mới User & Phân cấp bậc</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Email tài khoản</label>
+                            <input type="email" name="email" class="form-control" placeholder="Ví dụ: nhanvien@company.com" required />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">Mật khẩu (Tối thiểu 6 ký tự)</label>
+                            <input type="password" name="password" class="form-control" required />
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label">Cấp bậc (Role)</label>
+                            <select name="role" class="form-select" asp-items="ViewBag.Roles">
+                                <option value="">-- Chọn cấp bậc quản lý --</option>
+                            </select>
+                            <small class="text-muted">Phân quyền: Admin, Director, OM, AM, hoặc RGM</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Lưu và Cấp quyền</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại danh sách</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

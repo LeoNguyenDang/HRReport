@@ -1,0 +1,174 @@
+@model IEnumerable<HRReport.Models.Restaurant>
+
+@* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+@* //// PHẦN 1: GIAO DIỆN CHÍNH (HEADER & NÚT CHỨC NĂNG)                                        //// *@
+@* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-buildings"></i> Danh mục Nhà hàng</h2>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Thêm mới</a>
+            <form asp-action="Import" method="post" enctype="multipart/form-data" class="d-flex border p-1 rounded bg-light">
+                <input type="file" name="file" class="form-control form-control-sm me-2" accept=".xlsx" required />
+                <button type="submit" class="btn btn-success btn-sm text-nowrap">Nạp Excel</button>
+            </form>
+        </div>
+    </div>
+
+    @* Thông báo từ TempData (Dùng Razor Comment) *@
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+    @* //// PHẦN 2: BẢNG DỮ LIỆU NHÀ HÀNG                                                           //// *@
+    @* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+
+    <div class="table-responsive shadow-sm card">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ResCode</th>
+                    <th>Tên Nhà Hàng</th>
+                    <th>Vùng</th>
+                    <th>Quản lý (AM/OM/OD)</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.ResCode</td>
+                        <td>@item.Name</td>
+                        <td>@item.Region</td>
+                        <td>
+                            <small class="d-block text-muted">AM: @item.AM</small>
+                            <small class="d-block text-muted">OM: @item.OM</small>
+                            <small class="d-block text-muted text-uppercase">OD: @item.OD</small>
+                        </td>
+                        <td>
+                            <span class="badge @(item.Status == "Active" ? "bg-success" : "bg-danger")">@item.Status</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning" title="Sửa"><i class="bi bi-pencil"></i></a>
+                                
+                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(@item.Id, '@item.ResCode')" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <form id="delete-form-@item.Id" asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:none;">
+                                @Html.AntiForgeryToken()
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+@* //// PHẦN 3: MODAL QUYẾT ĐỊNH DI TRÚ DỮ LIỆU (UX DI TRÚ)                                     //// *@
+@* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+
+<div class="modal fade" id="deleteWarningModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-warning shadow-lg">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill"></i> KHÔNG THỂ XÓA TRỰC TIẾP</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Nhà hàng này đang có dữ liệu liên kết ở các bảng sau:</p>
+                <div id="relatedDataLinks" class="list-group mb-3">
+                    </div>
+
+                <div class="card bg-light border-warning">
+                    <div class="card-body">
+                        <h6 class="card-title text-danger"><i class="bi bi-lightbulb"></i> Đề xuất từ hệ thống:</h6>
+                        <p class="card-text small">
+                            Mày nên vào trang <strong>Sửa (Edit)</strong> để đổi mã <strong>ResCode</strong> này thành một mã tạm 
+                            (Ví dụ: <span class="badge bg-secondary">TEMP_@DateTime.Now.ToString("ddMM")</span>). 
+                            Hệ thống sẽ tự động cập nhật đống dữ liệu vướng ở trên theo mã mới này cho mày.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <a id="linkToEdit" href="#" class="btn btn-primary"><i class="bi bi-pencil-square"></i> Đi tới trang Sửa</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+@* //// PHẦN 4: LOGIC ĐIỀU KHIỂN (JAVASCRIPT)                                                   //// *@
+@* ///////////////////////////////////////////////////////////////////////////////////////////////// *@
+
+@section Scripts {
+    <script>
+        /**
+         * Hàm kiểm tra dữ liệu liên quan trước khi xóa
+         * //// Version 3.1: Guided Sync (Chuyển hướng sang trang Sửa)
+         */
+        function confirmDelete(id, ResCode) {
+            // Gọi API "trinh sát" để kiểm tra các bảng liên quan (Sales, v.v.)
+            fetch(`/Restaurant/CheckRelatedData?resCode=${ResCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.hasData) {
+                        // TRƯỜNG HỢP 1: CÓ DỮ LIỆU VƯỚNG -> HIỆN MODAL CẢNH BÁO
+                        
+                        // Cập nhật đường dẫn cho nút "Đi tới trang Sửa" để mày bay qua đó đổi mã
+                        const editLink = document.getElementById('linkToEdit');
+                        if(editLink) {
+                            editLink.href = `/Restaurant/Edit/${id}`;
+                        }
+
+                        // Đổ danh sách chi tiết các bảng và số dòng bị vướng
+                        let listContainer = document.getElementById('relatedDataLinks');
+                        listContainer.innerHTML = "";
+                        
+                        data.details.forEach(item => {
+                            listContainer.innerHTML += `
+                                <div class="list-group-item d-flex justify-content-between align-items-center border-start border-warning border-4 mb-2 shadow-sm">
+                                    <span><i class="bi bi-table me-2"></i>Dữ liệu ${item.table}</span>
+                                    <span class="badge bg-danger rounded-pill">${item.count} dòng</span>
+                                </div>`;
+                        });
+
+                        // Hiển thị Modal màu vàng (deleteWarningModal)
+                        var myModal = new bootstrap.Modal(document.getElementById('deleteWarningModal'));
+                        myModal.show();
+                    } else {
+                        // TRƯỜNG HỢP 2: KHÔNG CÓ DỮ LIỆU -> CHO PHÉP XÓA THẲNG
+                        if (confirm(`Nhà hàng [${ResCode}] này sạch sẽ. Mày chắc chắn muốn xóa chứ?`)) {
+                            document.getElementById('delete-form-' + id).submit();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi check data:', error);
+                    alert("Có lỗi xảy ra khi kiểm tra dữ liệu mạy ơi!");
+                });
+        }
+    </script>
+}

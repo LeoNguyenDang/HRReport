@@ -1,0 +1,50 @@
+@model IEnumerable<HRReport.Models.SalesLaborCost>
+
+<div class="container">
+    <h2>Quản lý Sales & Labor Cost</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Import" method="post" enctype="multipart/form-data" class="row g-3">
+                <div class="col-auto">
+                    <input type="file" name="file" class="form-control" accept=".xlsx" />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-success">Nạp file Excel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Ngày</th>
+                <th>Mã Nhà Hàng</th>
+                <th>Tên Nhà Hàng</th>
+                <th>Doanh Số</th>
+                <th>Lương MG</th>
+                <th>Lương TM</th>
+                <th>Phúc Lợi</th>
+                <th>Labor Cost</th>
+                <th>% Col</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@item.ResCode</td>
+                    <td>@item.Restaurant?.Name</td>
+                    <td>@item.Sales.ToString("N0")</td>
+                    <td>@item.MgSalary.ToString("N0")</td>
+                    <td>@item.TmSalary.ToString("N0")</td>
+                    <td>@item.Benefit.ToString("N0")</td>
+                    <td class="fw-bold">@item.LaborCost.ToString("N0")</td>
+                    <td class="text-danger fw-bold">@item.PercentCol.ToString("N2")%</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

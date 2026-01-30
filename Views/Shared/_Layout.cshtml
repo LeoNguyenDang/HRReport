@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/HRReport.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
     <header>
@@ -18,16 +19,35 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    
+                    @if (User.IsInRole("Admin"))
+                    {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-controller="User" asp-action="Index">User</a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            @* Cái này sẽ tạo cái Tab "Quản lý Sales" trên thanh menu *@
+                            <a class="nav-link text-dark" asp-area="" asp-controller="SalesLaborCost" asp-action="Index">
+                                <i class="bi bi-graph-up"></i> Quản lý Sales & Labor
+                            </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Restaurant" asp-action="Index">
+                                <i class="bi bi-house-door"></i> Danh mục Nhà hàng
+                            </a>
+                        </li>
+
+                    }
                     </ul>
+
+                <div class="ms-auto">
+                    <partial name="_LoginPartial" />
                 </div>
+            </div>
             </div>
         </nav>
     </header>

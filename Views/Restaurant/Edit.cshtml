@@ -1,0 +1,52 @@
+@model HRReport.Models.Restaurant
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h4><i class="bi bi-pencil-square"></i> Chỉnh sửa Nhà hàng: @Model.ResCode</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label text-danger fw-bold">Mã nhà hàng (ResCode)</label>
+                        <input asp-for="ResCode" class="form-control border-danger" />
+                        <div class="form-text text-danger">
+                            <i class="bi bi-exclamation-triangle"></i> Cẩn thận: Đổi mã này sẽ kéo theo toàn bộ dữ liệu liên quan!
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tên nhà hàng</label>
+                        <input asp-for="Name" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                    <hr />
+                    <h5>Thông tin quản lý</h5>
+                    <div class="col-md-4">
+                        <label class="form-label">AM</label>
+                        <input asp-for="AM" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">OM</label>
+                        <input asp-for="OM" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">OD</label>
+                        <input asp-for="OD" class="form-control" />
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

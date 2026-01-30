@@ -1,0 +1,28 @@
+@model Microsoft.AspNetCore.Identity.IdentityUser
+
+<div class="container mt-4">
+    <div class="card border-danger shadow">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Cảnh báo: Xóa User</h4>
+        </div>
+        <div class="card-body">
+            <h5>Mày có chắc chắn muốn xóa User này không?</h5>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+                
+                <dt class="col-sm-3">User ID:</dt>
+                <dd class="col-sm-9 text-muted">@Model.Id</dd>
+            </dl>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Xóa luôn!</button>
+                    <a asp-action="Index" class="btn btn-secondary">Thôi, quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
